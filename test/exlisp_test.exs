@@ -24,4 +24,22 @@ defmodule ExlispTest do
     	%{type: :symbol, content: "1"}
     ]
   end
+
+  test "parsing expression with mixed levels" do
+    parsed_result = "a b (c d e (f g h))" |> Exlisp.parse
+    assert [
+      %{content: "a"},
+      %{content: "b"},
+      [
+        %{content: "c"},
+        %{content: "d"},
+        %{content: "e"},
+        [
+          %{content: "f"},
+          %{content: "g"},
+          %{content: "h"}
+        ]
+      ]
+    ] = parsed_result
+  end
 end
