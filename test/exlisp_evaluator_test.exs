@@ -10,4 +10,10 @@ defmodule Exlisp.EvaluatorTest do
     result = "+ 1 (+ 2 3 (+ 1 2) 1)" |> Exlisp.evaluate
     assert result == 10
   end
+
+  test "multiplication function" do
+    result = "* 2 3 (* 3 5)" |> Exlisp.evaluate
+    assert result == 90
+  end
+
 end

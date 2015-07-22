@@ -16,4 +16,9 @@ defmodule Exlisp do
 		result = Enum.reduce(args,fn (num, total) -> total+num end)
 		result
 	end
+
+	defp execute(%{type: :symbol, content: "*"}, args) do
+		result = Enum.reduce(args,fn (num, total) -> total*num end)
+		result
+	end
 end
