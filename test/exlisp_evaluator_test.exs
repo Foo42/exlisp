@@ -49,4 +49,8 @@ defmodule Exlisp.EvaluatorTest do
     assert result == true
   end
 
+  test "'list' function returns list unmodified" do
+    result = "list 3 false" |> Exlisp.evaluate
+    assert result == [3, false]
+  end
 end
