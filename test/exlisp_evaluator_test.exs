@@ -26,4 +26,27 @@ defmodule Exlisp.EvaluatorTest do
     assert result == 2.5
   end
 
+  test "'>' boolean comparison function" do
+    result = "> 3 4" |> Exlisp.evaluate
+    assert result == false
+  end
+
+  test "'<' boolean comparison function" do
+    result = "< 3 4" |> Exlisp.evaluate
+    assert result == true
+  end
+
+  test "'=' boolean comparison function" do
+    result = "= 3 4" |> Exlisp.evaluate
+    assert result == false
+
+    result = "= 3 3" |> Exlisp.evaluate
+    assert result == true
+  end
+
+  test "'!=' boolean comparison function" do
+    result = "!= 3 4" |> Exlisp.evaluate
+    assert result == true
+  end
+
 end

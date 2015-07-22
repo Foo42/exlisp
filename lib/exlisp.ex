@@ -28,5 +28,21 @@ defmodule Exlisp do
 		Enum.reduce(args,fn (num, total) -> total/num end)
 	end
 
+	defp execute(%{type: :symbol, content: ">"}, args) do
+		Enum.reduce(args,fn (num, prev) -> prev > num end)
+	end
+
+	defp execute(%{type: :symbol, content: "<"}, args) do
+		Enum.reduce(args,fn (num, prev) -> prev < num end)
+	end
+
+	defp execute(%{type: :symbol, content: "="}, args) do
+		Enum.reduce(args,fn (prev, current) -> prev == current end)
+	end
+
+	defp execute(%{type: :symbol, content: "!="}, args) do
+		Enum.reduce(args,fn (prev, current) -> prev != current end)
+	end
+
 	defp execute(%{type: :symbol, content: unknown_function}, _args), do: throw "Unknown function '#{unknown_function}'"
 end
