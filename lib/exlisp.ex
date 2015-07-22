@@ -13,12 +13,20 @@ defmodule Exlisp do
 	defp evaluate_list([op|args]), do: execute(op, Enum.map(args, &evaluate(&1)))
 
 	defp execute(%{type: :symbol, content: "+"}, args) do
-		result = Enum.reduce(args,fn (num, total) -> total+num end)
-		result
+		Enum.reduce(args,fn (num, total) -> total+num end)
 	end
 
 	defp execute(%{type: :symbol, content: "*"}, args) do
-		result = Enum.reduce(args,fn (num, total) -> total*num end)
-		result
+		Enum.reduce(args,fn (num, total) -> total*num end)
 	end
+
+	defp execute(%{type: :symbol, content: "-"}, args) do
+		Enum.reduce(args,fn (num, total) -> total-num end)
+	end
+
+	defp execute(%{type: :symbol, content: "/"}, args) do
+		Enum.reduce(args,fn (num, total) -> total/num end)
+	end
+
+	defp execute(%{type: :symbol, content: unknown_function}, _args), do: throw "Unknown function '#{unknown_function}'"
 end
