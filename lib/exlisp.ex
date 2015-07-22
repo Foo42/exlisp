@@ -12,41 +12,48 @@ defmodule Exlisp do
 		number
 	end
 
-	defp evaluate_list([op|args]), do: execute(op, Enum.map(args, &evaluate(&1)))
+	defp evaluate_list([op|args]), do: execute(op, args)
+
+	defp evaluate_each(args), do: Enum.map(args, &evaluate(&1))
 
 	defp execute(%{type: :symbol, content: "+"}, args) do
-		Enum.reduce(args,fn (num, total) -> total+num end)
+		evaluate_each(args) |> Enum.reduce(fn (num, total) -> total+num end)
 	end
 
 	defp execute(%{type: :symbol, content: "*"}, args) do
-		Enum.reduce(args,fn (num, total) -> total*num end)
+		evaluate_each(args) |> Enum.reduce(fn (num, total) -> total*num end)
 	end
 
 	defp execute(%{type: :symbol, content: "-"}, args) do
-		Enum.reduce(args,fn (num, total) -> total-num end)
+		evaluate_each(args) |> Enum.reduce(fn (num, total) -> total-num end)
 	end
 
 	defp execute(%{type: :symbol, content: "/"}, args) do
-		Enum.reduce(args,fn (num, total) -> total/num end)
+		evaluate_each(args) |> Enum.reduce(fn (num, total) -> total/num end)
 	end
 
 	defp execute(%{type: :symbol, content: ">"}, args) do
-		Enum.reduce(args,fn (num, prev) -> prev > num end)
+		evaluate_each(args) |> Enum.reduce(fn (num, prev) -> prev > num end)
 	end
 
 	defp execute(%{type: :symbol, content: "<"}, args) do
-		Enum.reduce(args,fn (num, prev) -> prev < num end)
+		evaluate_each(args) |> Enum.reduce(fn (num, prev) -> prev < num end)
 	end
 
 	defp execute(%{type: :symbol, content: "="}, args) do
-		Enum.reduce(args,fn (prev, current) -> prev == current end)
+		evaluate_each(args) |> Enum.reduce(fn (prev, current) -> prev == current end)
 	end
 
 	defp execute(%{type: :symbol, content: "!="}, args) do
-		Enum.reduce(args,fn (prev, current) -> prev != current end)
+		evaluate_each(args) |> Enum.reduce(fn (prev, current) -> prev != current end)
 	end
 
-	defp execute(%{type: :symbol, content: "list"}, args), do: args
+	defp execute(%{type: :symbol, content: "list"}, args), do: evaluate_each(args)
+
+	defp execute(%{type: :symbol, content: "if"}, args) do
+		[predicate, true_clause, %{type: :symbol, content: "else"}, false_clause] = args
+		if evaluate(predicate), do: evaluate(true_clause), else: evaluate(false_clause)
+	end
 
 	defp execute(%{type: :symbol, content: unknown_function}, _args), do: throw "Unknown function '#{unknown_function}'"
 end

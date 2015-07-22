@@ -53,4 +53,12 @@ defmodule Exlisp.EvaluatorTest do
     result = "list 3 false" |> Exlisp.evaluate
     assert result == [3, false]
   end
+
+  test "'if' function can return values conditionally" do
+    result = "if true 1 else 2" |> Exlisp.evaluate
+    assert result == 1
+
+    result = "if (> 1 2) 1 else 2" |> Exlisp.evaluate
+    assert result == 2
+  end
 end
