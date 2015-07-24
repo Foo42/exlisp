@@ -62,8 +62,8 @@ defmodule Exlisp.EvaluatorTest do
     assert result == 2
   end
 
-  # test "Anonymous functions can operate on a list" do
-  #   result = "(fn (a b) -> (> a  b)) 1 2" |> Exlisp.evaluate
-  #   assert result == false
-  # end
+  test "Anonymous functions can operate on a list" do
+    result = "(fn (a b) -> (= a  b)) 1 2" |> Exlisp.evaluate
+    assert result == false
+  end
 end

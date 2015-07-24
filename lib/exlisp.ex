@@ -1,66 +1,72 @@
 defmodule Exlisp do
 	alias Exlisp.Parser
+	alias Exlisp.Scope
 
 	def parse(s), do: Parser.parse(s)
 
-	def evaluate(s) when is_binary(s), do: Parser.parse(s) |> evaluate_list
+	def evaluate(s) when is_binary(s), do: Parser.parse(s) |> evaluate_list Scope.open
+	def evaluate(term, stack) when is_list(term), do: evaluate_list(term, stack)
 	
-	def evaluate(term) when is_list(term), do: evaluate_list(term)
-	
-	def evaluate(%{type: :symbol, content: "true"}), do: true
-	def evaluate(%{type: :symbol, content: "false"}), do: false
-	def evaluate(%{type: :symbol, content: symbol}) do
-		{number,_} = Float.parse(symbol)
-		number
+	def evaluate(%{type: :symbol, content: "true"}, _stack), do: true
+	def evaluate(%{type: :symbol, content: "false"}, _stack), do: false
+	def evaluate(%{type: :symbol, content: symbol}, stack) do
+		case Float.parse(symbol) do
+			{number,_} -> number
+			_ -> Scope.get_value(stack,symbol)
+		end
 	end
 
-	defp evaluate_list([op|args]), do: execute(op, args)
+	defp evaluate_list([op|args], stack), do: execute(op, args, stack)
 
-	defp evaluate_each(args), do: Enum.map(args, &evaluate(&1))
+	defp evaluate_each(args, stack), do: Enum.map(args, &evaluate(&1, stack))
 
-	defp execute(%{type: :symbol, content: "+"}, args) do
-		evaluate_each(args) |> Enum.reduce(fn (num, total) -> total+num end)
+	defp execute(%{type: :symbol, content: "+"}, args, stack) do
+		evaluate_each(args, stack) |> Enum.reduce(fn (num, total) -> total+num end)
 	end
 
-	defp execute(%{type: :symbol, content: "*"}, args) do
-		evaluate_each(args) |> Enum.reduce(fn (num, total) -> total*num end)
+	defp execute(%{type: :symbol, content: "*"}, args, stack) do
+		evaluate_each(args, stack) |> Enum.reduce(fn (num, total) -> total*num end)
 	end
 
-	defp execute(%{type: :symbol, content: "-"}, args) do
-		evaluate_each(args) |> Enum.reduce(fn (num, total) -> total-num end)
+	defp execute(%{type: :symbol, content: "-"}, args, stack) do
+		evaluate_each(args, stack) |> Enum.reduce(fn (num, total) -> total-num end)
 	end
 
-	defp execute(%{type: :symbol, content: "/"}, args) do
-		evaluate_each(args) |> Enum.reduce(fn (num, total) -> total/num end)
+	defp execute(%{type: :symbol, content: "/"}, args, stack) do
+		evaluate_each(args, stack) |> Enum.reduce(fn (num, total) -> total/num end)
 	end
 
-	defp execute(%{type: :symbol, content: ">"}, args) do
-		evaluate_each(args) |> Enum.reduce(fn (num, prev) -> prev > num end)
+	defp execute(%{type: :symbol, content: ">"}, args, stack) do
+		evaluate_each(args, stack) |> Enum.reduce(fn (num, prev) -> prev > num end)
 	end
 
-	defp execute(%{type: :symbol, content: "<"}, args) do
-		evaluate_each(args) |> Enum.reduce(fn (num, prev) -> prev < num end)
+	defp execute(%{type: :symbol, content: "<"}, args, stack) do
+		evaluate_each(args, stack) |> Enum.reduce(fn (num, prev) -> prev < num end)
 	end
 
-	defp execute(%{type: :symbol, content: "="}, args) do
-		evaluate_each(args) |> Enum.reduce(fn (prev, current) -> prev == current end)
+	defp execute(%{type: :symbol, content: "="}, args, stack) do
+		evaluate_each(args, stack) |> Enum.reduce(fn (prev, current) -> prev == current end)
 	end
 
-	defp execute(%{type: :symbol, content: "!="}, args) do
-		evaluate_each(args) |> Enum.reduce(fn (prev, current) -> prev != current end)
+	defp execute(%{type: :symbol, content: "!="}, args, stack) do
+		evaluate_each(args, stack) |> Enum.reduce(fn (prev, current) -> prev != current end)
 	end
 
-	defp execute(%{type: :symbol, content: "list"}, args), do: evaluate_each(args)
+	defp execute(%{type: :symbol, content: "list"}, args, stack), do: evaluate_each(args, stack)
 
-	defp execute(%{type: :symbol, content: "if"}, args) do
+	defp execute(%{type: :symbol, content: "if"}, args, stack) do
 		[predicate, true_clause, %{type: :symbol, content: "else"}, false_clause] = args
-		if evaluate(predicate), do: evaluate(true_clause), else: evaluate(false_clause)
+		if evaluate(predicate, stack), do: evaluate(true_clause, stack), else: evaluate(false_clause, stack)
 	end
 
-	defp execute([%{type: :symbol, content: "fn"} | function_def], args) do
+	defp execute([%{type: :symbol, content: "fn"} | function_def], args, stack) do
 		[parameters, %{type: :symbol, content: "->"}, function_body] = function_def
-		"todo"
+		stack_with_bound_params = 
+			Enum.zip(parameters,args)
+			|> Enum.reduce(stack, fn ({%{content: name},value},stack) -> Scope.bind(stack,name,evaluate(value,stack)) end)
+		IO.puts "bound #{inspect parameters} leaving stack as #{inspect stack_with_bound_params}"
+		evaluate(function_body, stack_with_bound_params)
 	end
 
-	defp execute(%{type: :symbol, content: unknown_function}, _args), do: throw "Unknown function '#{unknown_function}'"
+	defp execute(%{type: :symbol, content: unknown_function}, _args, _stack), do: throw "Unknown function '#{unknown_function}'"
 end
