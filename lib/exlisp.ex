@@ -47,6 +47,14 @@ defmodule Exlisp do
 		evaluate_each(args, stack) |> Enum.reduce(fn (num, prev) -> prev < num end)
 	end
 
+	defp execute(%{type: :symbol, content: "and"}, args, stack) do
+		evaluate_each(args, stack) |> Enum.all?
+	end
+
+	defp execute(%{type: :symbol, content: "or"}, args, stack) do
+		evaluate_each(args, stack) |> Enum.any?
+	end
+
 	defp execute(%{type: :symbol, content: "="}, args, stack) do
 		evaluate_each(args, stack) |> Enum.reduce(fn (prev, current) -> prev == current end)
 	end
@@ -67,7 +75,6 @@ defmodule Exlisp do
 		stack_with_bound_params = 
 			Enum.zip(parameters,args)
 			|> Enum.reduce(stack, fn ({%{content: name},value},stack) -> Scope.bind(stack,name,evaluate(value,stack)) end)
-		IO.puts "bound #{inspect parameters} leaving stack as #{inspect stack_with_bound_params}"
 		evaluate(function_body, stack_with_bound_params)
 	end
 

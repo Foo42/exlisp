@@ -49,9 +49,33 @@ defmodule Exlisp.EvaluatorTest do
     assert result == true
   end
 
+  test "'and' boolean function" do
+    result = "and true true" |> Exlisp.evaluate
+    assert result == true
+
+    result = "and true false" |> Exlisp.evaluate
+    assert result == false
+  end
+
   test "'list' function returns list unmodified" do
     result = "list 3 false" |> Exlisp.evaluate
     assert result == [3, false]
+  end
+
+  test "'and' boolean function" do
+    result = "and true true" |> Exlisp.evaluate
+    assert result == true
+
+    result = "and true false" |> Exlisp.evaluate
+    assert result == false
+  end
+
+  test "'or' boolean function" do
+    result = "or false false" |> Exlisp.evaluate
+    assert result == false
+
+    result = "or true false" |> Exlisp.evaluate
+    assert result == true
   end
 
   test "'if' function can return values conditionally" do
