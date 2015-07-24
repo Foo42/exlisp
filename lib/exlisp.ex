@@ -55,5 +55,10 @@ defmodule Exlisp do
 		if evaluate(predicate), do: evaluate(true_clause), else: evaluate(false_clause)
 	end
 
+	defp execute([%{type: :symbol, content: "fn"} | function_def], args) do
+		[parameters, %{type: :symbol, content: "->"}, function_body] = function_def
+		"todo"
+	end
+
 	defp execute(%{type: :symbol, content: unknown_function}, _args), do: throw "Unknown function '#{unknown_function}'"
 end
