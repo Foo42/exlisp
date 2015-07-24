@@ -1,7 +1,9 @@
 defmodule Exlisp do
-	def parse(s), do: Exlisp.Parser.parse(s)
+	alias Exlisp.Parser
 
-	def evaluate(s) when is_binary(s), do: Exlisp.Parser.parse(s) |> evaluate_list
+	def parse(s), do: Parser.parse(s)
+
+	def evaluate(s) when is_binary(s), do: Parser.parse(s) |> evaluate_list
 	
 	def evaluate(term) when is_list(term), do: evaluate_list(term)
 	
