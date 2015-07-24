@@ -11,12 +11,15 @@ defmodule Exlisp do
 	def evaluate(%{type: :symbol, content: "false"}, _stack), do: false
 	def evaluate(%{type: :symbol, content: symbol}, stack) do
 		case Float.parse(symbol) do
-			{number,_} -> number
-			_ -> Scope.get_value(stack,symbol)
+			{number,_} -> 
+				number
+			_ ->
+				{:ok, value} = Scope.get_value(stack,symbol)
+				value
 		end
 	end
 
-	defp evaluate_list([op|args], stack), do: execute(op, args, stack)
+	defp evaluate_list([op|args], stack), do: execute(op, args, Scope.open(stack))
 
 	defp evaluate_each(args, stack), do: Enum.map(args, &evaluate(&1, stack))
 

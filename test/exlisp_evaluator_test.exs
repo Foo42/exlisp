@@ -63,7 +63,11 @@ defmodule Exlisp.EvaluatorTest do
   end
 
   test "Anonymous functions can operate on a list" do
-    result = "(fn (a b) -> (= a  b)) 1 2" |> Exlisp.evaluate
+    result = "(fn (a b) -> (> a  b)) 1 2" |> Exlisp.evaluate
     assert result == false
+  end
+
+  test "value bindings from function paramter list do not leak to outer scope" do
+    assert catch_error("(fn (a b) -> (> a  b)) a 2" |> Exlisp.evaluate) == {:badmatch, {:undefined}}
   end
 end
