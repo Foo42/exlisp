@@ -94,4 +94,12 @@ defmodule Exlisp.EvaluatorTest do
   test "value bindings from function paramter list do not leak to outer scope" do
     assert catch_error("(fn (a b) -> (> a  b)) a 2" |> Exlisp.evaluate) == {:badmatch, {:undefined}}
   end
+
+  test "'let' creates a binding" do
+    result = "let a 5 (= a 5)" |> Exlisp.evaluate
+    assert result == true
+
+    result = "let square (fn (x) -> (* x x)) (square 2)" |> Exlisp.evaluate
+    assert result == 4
+  end
 end

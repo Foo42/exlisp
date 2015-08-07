@@ -78,5 +78,10 @@ defmodule Exlisp do
 		evaluate(function_body, stack_with_bound_params)
 	end
 
+	defp execute(%{type: :symbol, content: "let"}, [%{type: :symbol, content: name}, value, body], stack) do
+		stack_with_bound_params =  Scope.bind(stack,name,evaluate(value,stack))
+		evaluate(body, stack_with_bound_params)
+	end
+
 	defp execute(%{type: :symbol, content: unknown_function}, _args, _stack), do: throw "Unknown function '#{unknown_function}'"
 end
