@@ -83,5 +83,9 @@ defmodule Exlisp do
 		evaluate(body, stack_with_bound_params)
 	end
 
+	defp execute(%{type: :symbol, content: "do"}, statements, stack) do
+		args |> Enum.reduce(stack, fn statement ->  end) # problem - we need to let statements modify the stack (state) in that they need to be able to define things, this isnt posible currently as executing statements dont return the stack
+	end
+
 	defp execute(%{type: :symbol, content: unknown_function}, _args, _stack), do: throw "Unknown function '#{unknown_function}'"
 end

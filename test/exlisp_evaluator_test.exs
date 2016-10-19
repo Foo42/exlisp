@@ -95,11 +95,16 @@ defmodule Exlisp.EvaluatorTest do
     assert catch_error("(fn (a b) -> (> a  b)) a 2" |> Exlisp.evaluate) == {:badmatch, {:undefined}}
   end
 
-  test "'let' creates a binding" do
-    result = "let a 5 (= a 5)" |> Exlisp.evaluate
-    assert result == true
+  # test "'let' creates a binding" do
+  #   result = "let (a 5) (= a 5)" |> Exlisp.evaluate
+  #   assert result == true
 
-    result = "let square (fn (x) -> (* x x)) (square 2)" |> Exlisp.evaluate
-    assert result == 4
+  #   result = "let square (fn (x) -> (* x x)) (square 2)" |> Exlisp.evaluate
+  #   assert result == 4
+  # end
+
+  test "do allows multiple statements and evaluates to the value of the last" do
+    result = "do 1 2 (< 5 6)" |> Exlisp.execute
+    assert result == true
   end
 end
